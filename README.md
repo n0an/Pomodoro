@@ -2,6 +2,11 @@
 
 A clean, minimal Pomodoro timer desktop app built with Tauri and React.
 
+![GitHub last commit](https://img.shields.io/github/last-commit/n0an/Pomodoro)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/n0an/Pomodoro)
+![GitHub repo size](https://img.shields.io/github/repo-size/n0an/Pomodoro)
+![GitHub License](https://img.shields.io/github/license/n0an/Pomodoro)
+
 ![macOS](https://img.shields.io/badge/macOS-000000?style=flat&logo=apple&logoColor=white)
 ![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
