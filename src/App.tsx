@@ -2,45 +2,79 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import "./App.css";
 
 type TimerMode = "work" | "break";
+type TimerState = "idle" | "running" | "finished";
 
 function App() {
   const [workDuration, setWorkDuration] = useState(25);
   const [breakDuration, setBreakDuration] = useState(5);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
-  const [isRunning, setIsRunning] = useState(false);
+  const [timerState, setTimerState] = useState<TimerState>("idle");
   const [mode, setMode] = useState<TimerMode>("work");
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const endTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<number | null>(null);
 
   const playNotificationSound = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => {});
+    // Play a pleasant bell sound using Web Audio API
+    try {
+      const audioContext = new AudioContext();
+
+      // Play 3 ascending tones
+      [0, 0.2, 0.4].forEach((delay, i) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 440 * Math.pow(1.25, i); // A4, C#5, F5
+        oscillator.type = "sine";
+
+        const startTime = audioContext.currentTime + delay;
+        gainNode.gain.setValueAtTime(0.3, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.5);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.5);
+      });
+    } catch {
+      // Fallback to HTML audio
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(() => {});
+      }
     }
   }, []);
 
-  const switchMode = useCallback(() => {
-    if (mode === "work") {
-      setSessionsCompleted((prev) => prev + 1);
-      setMode("break");
-      setTimeLeft(breakDuration * 60);
-    } else {
-      setMode("work");
-      setTimeLeft(workDuration * 60);
-    }
-    playNotificationSound();
-  }, [mode, workDuration, breakDuration, playNotificationSound]);
-
+  // Use absolute time to prevent drift when window is in background
   useEffect(() => {
-    if (isRunning && timeLeft > 0) {
+    if (timerState === "running") {
+      // Set the end time when starting
+      if (endTimeRef.current === null) {
+        endTimeRef.current = Date.now() + timeLeft * 1000;
+      }
+
       intervalRef.current = window.setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      switchMode();
+        const now = Date.now();
+        const remaining = Math.ceil((endTimeRef.current! - now) / 1000);
+
+        if (remaining <= 0) {
+          setTimeLeft(0);
+          setTimerState("finished");
+          endTimeRef.current = null;
+          playNotificationSound();
+
+          // Increment sessions when work finishes
+          if (mode === "work") {
+            setSessionsCompleted((prev) => prev + 1);
+          }
+        } else {
+          setTimeLeft(remaining);
+        }
+      }, 100); // Check more frequently for accuracy
     }
 
     return () => {
@@ -48,7 +82,7 @@ function App() {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, timeLeft, switchMode]);
+  }, [timerState, mode, playNotificationSound]);
 
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -56,32 +90,57 @@ function App() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const handleStartPause = () => {
-    setIsRunning(!isRunning);
+  const handleStart = () => {
+    endTimeRef.current = Date.now() + timeLeft * 1000;
+    setTimerState("running");
+  };
+
+  const handlePause = () => {
+    setTimerState("idle");
+    endTimeRef.current = null;
   };
 
   const handleReset = () => {
-    setIsRunning(false);
+    setTimerState("idle");
+    endTimeRef.current = null;
     setTimeLeft(mode === "work" ? workDuration * 60 : breakDuration * 60);
   };
 
+  const handleStartBreak = () => {
+    setMode("break");
+    setTimeLeft(breakDuration * 60);
+    setTimerState("idle");
+  };
+
+  const handleStartWork = () => {
+    setMode("work");
+    setTimeLeft(workDuration * 60);
+    setTimerState("idle");
+  };
+
   const handleSkip = () => {
-    setIsRunning(false);
-    switchMode();
+    setTimerState("idle");
+    endTimeRef.current = null;
+    if (mode === "work") {
+      setMode("break");
+      setTimeLeft(breakDuration * 60);
+    } else {
+      setMode("work");
+      setTimeLeft(workDuration * 60);
+    }
   };
 
   const handleSettingsSave = (work: number, breakTime: number) => {
     setWorkDuration(work);
     setBreakDuration(breakTime);
-    if (!isRunning) {
+    if (timerState === "idle") {
       setTimeLeft(mode === "work" ? work * 60 : breakTime * 60);
     }
     setShowSettings(false);
   };
 
-  const progress = mode === "work"
-    ? ((workDuration * 60 - timeLeft) / (workDuration * 60)) * 100
-    : ((breakDuration * 60 - timeLeft) / (breakDuration * 60)) * 100;
+  const totalDuration = mode === "work" ? workDuration * 60 : breakDuration * 60;
+  const progress = ((totalDuration - timeLeft) / totalDuration) * 100;
 
   return (
     <main className="container">
@@ -128,19 +187,40 @@ function App() {
                 }}
               />
             </svg>
-            <div className="timer-display">{formatTime(timeLeft)}</div>
+            <div className="timer-display">
+              {timerState === "finished" ? "Done!" : formatTime(timeLeft)}
+            </div>
           </div>
 
           <div className="controls">
-            <button onClick={handleReset} className="btn btn-secondary">
-              Reset
-            </button>
-            <button onClick={handleStartPause} className="btn btn-primary">
-              {isRunning ? "Pause" : "Start"}
-            </button>
-            <button onClick={handleSkip} className="btn btn-secondary">
-              Skip
-            </button>
+            {timerState === "finished" ? (
+              // Show appropriate button when timer finishes
+              mode === "work" ? (
+                <button onClick={handleStartBreak} className="btn btn-primary btn-wide">
+                  Start Break
+                </button>
+              ) : (
+                <button onClick={handleStartWork} className="btn btn-primary btn-wide">
+                  Start Work
+                </button>
+              )
+            ) : (
+              // Normal controls
+              <>
+                <button onClick={handleReset} className="btn btn-secondary">
+                  Reset
+                </button>
+                <button
+                  onClick={timerState === "running" ? handlePause : handleStart}
+                  className="btn btn-primary"
+                >
+                  {timerState === "running" ? "Pause" : "Start"}
+                </button>
+                <button onClick={handleSkip} className="btn btn-secondary">
+                  Skip
+                </button>
+              </>
+            )}
           </div>
 
           <div className="sessions">

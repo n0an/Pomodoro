@@ -84,7 +84,7 @@ body {
 }
 
 .progress-ring-fill {
-  transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
+  transition: stroke 0.3s ease;
 }
 
 .timer-display {
@@ -126,6 +126,10 @@ body {
 
 .btn-primary:hover {
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.btn-wide {
+  min-width: 200px;
 }
 
 .btn-secondary {
