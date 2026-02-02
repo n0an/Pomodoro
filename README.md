@@ -9,7 +9,9 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Platform-macOS%20|%20Windows%20|%20Linux-blue" alt="Platform">
+  <img src="https://img.shields.io/badge/macOS-10.14+-black?logo=apple" alt="macOS">
+  <img src="https://img.shields.io/badge/Windows-10+-0078D6?logo=windows" alt="Windows">
+  <img src="https://img.shields.io/badge/Linux-compatible-FCC624?logo=linux&logoColor=black" alt="Linux">
   <img src="https://img.shields.io/badge/Tauri-2.0-orange?logo=tauri" alt="Tauri">
   <img src="https://img.shields.io/badge/React-19-61dafb?logo=react" alt="React">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
