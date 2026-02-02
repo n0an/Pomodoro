@@ -1,17 +1,21 @@
-# Pomodoro Timer
+<p align="center">
+  <img src="assets/screenshot.png" alt="Pomodoro Timer" width="280">
+</p>
 
-A clean, minimal Pomodoro timer desktop app built with Tauri and React.
-
-![GitHub last commit](https://img.shields.io/github/last-commit/n0an/Pomodoro)
-![GitHub License](https://img.shields.io/github/license/n0an/Pomodoro)
-
-![macOS](https://img.shields.io/badge/macOS-000000?style=flat&logo=apple&logoColor=white)
-![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)
-![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
+<h1 align="center">Pomodoro Timer</h1>
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="Pomodoro Timer" width="300">
+  A clean, minimal Pomodoro timer desktop app built with Tauri and React.
 </p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-macOS%20|%20Windows%20|%20Linux-blue" alt="Platform">
+  <img src="https://img.shields.io/badge/Tauri-2.0-orange?logo=tauri" alt="Tauri">
+  <img src="https://img.shields.io/badge/React-19-61dafb?logo=react" alt="React">
+  <img src="https://img.shields.io/github/license/n0an/Pomodoro" alt="License">
+</p>
+
+---
 
 ## Features
 
