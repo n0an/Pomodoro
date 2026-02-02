@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/Platform-macOS%20|%20Windows%20|%20Linux-blue" alt="Platform">
   <img src="https://img.shields.io/badge/Tauri-2.0-orange?logo=tauri" alt="Tauri">
   <img src="https://img.shields.io/badge/React-19-61dafb?logo=react" alt="React">
-  <img src="https://img.shields.io/github/license/n0an/Pomodoro" alt="License">
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
 </p>
 
 ---
